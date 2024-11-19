@@ -10,6 +10,9 @@ export class Partner extends AbstractEntity<Partner> {
     @Column({ unique: true })
     email: string;
 
+    @Column()
+    password: string;
+
     @Column({ type: 'varchar', length: 20 })
     phoneNumber: string;
 

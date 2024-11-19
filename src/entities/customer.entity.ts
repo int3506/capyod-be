@@ -10,6 +10,9 @@ export class Customer extends AbstractEntity<Customer> {
     @Column({ unique: true })
     email: string;
 
+    @Column()
+    password: string;
+
     @Column({ type: 'varchar', length: 20 })
     phoneNumber: string;
 
