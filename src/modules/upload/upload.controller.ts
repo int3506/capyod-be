@@ -5,7 +5,6 @@ import {
   UploadedFile,
   Body,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -13,10 +12,8 @@ import { v4 as uuidv4 } from "uuid";
 import { extname, join } from "path";
 import { UploadService } from "./upload.service";
 import { UploadImageDto } from './dto/upload-image.dto';
-import { JwtAuthGuard } from '../login/jwt-auth.guard';
 
 @Controller("uploads")
-@UseGuards(JwtAuthGuard)
 export class UploadController {
   private readonly serverUrl = "http://localhost:3000";
   constructor(private readonly uploadService: UploadService) {}

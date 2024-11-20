@@ -1,9 +1,10 @@
 import { AbstractEntity } from "src/database/abstract.entity";
 import { Column, Entity, OneToMany } from "typeorm";
 import { Blueprint } from "./blueprint.entity";
+import { Order } from "./order.entity";
 
 @Entity()
-export class Partner extends AbstractEntity<Partner> {
+export class User extends AbstractEntity<User> {
     @Column()
     name: string;
 
@@ -13,9 +14,15 @@ export class Partner extends AbstractEntity<Partner> {
     @Column()
     password: string;
 
-    @Column({ type: 'varchar', length: 20 })
+    @Column()
     phoneNumber: string;
 
-    @OneToMany(() => Blueprint, (blueprint) => blueprint.partner)
+    @Column({ default: false })
+    isPartner: boolean;
+
+    @OneToMany(() => Blueprint, (blueprint) => blueprint.user)
     blueprints: Blueprint[];
+
+    @OneToMany(() => Order, (order) => order.user)
+    orders: Order[];
 }

@@ -6,13 +6,11 @@ import { Blueprint } from "./entities/blueprint.entity";
 import { Product } from "./entities/product.entity";
 import { OrderItem } from "./entities/orderItem.entity";
 import { Order } from "./entities/order.entity";
-import { Partner } from "./entities/partner.entity";
-import { Customer } from "./entities/customer.entity";
 import { Shipping } from "./entities/shipping.entity";
 import { UploadModule } from "./modules/upload/upload.module";
 import { AppController } from "./app.controller";
-import {CreateUserModule} from "./modules/user/createUser.module";
-import { LoginModule } from "./modules/login/login.module";
+import { UserModule}  from "./modules/user/user.module";
+import { User } from "./entities/user.entity";
 
 @Module({
   imports: [
@@ -23,13 +21,11 @@ import { LoginModule } from "./modules/login/login.module";
       Product,
       OrderItem,
       Order,
-      Partner,
-      Customer,
+      User,
       Shipping,
     ]),
     UploadModule,
-    CreateUserModule,
-    LoginModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [],
