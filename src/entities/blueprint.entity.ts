@@ -1,6 +1,6 @@
 import { AbstractEntity } from "src/database/abstract.entity";
 import { Column, Entity, ManyToOne } from "typeorm";
-import { Partner } from "./partner.entity";
+import { User } from "./user.entity";
 
 @Entity()
 export class Blueprint extends AbstractEntity<Blueprint> {
@@ -13,6 +13,6 @@ export class Blueprint extends AbstractEntity<Blueprint> {
     @Column()
     imageUrl: string;
 
-    @ManyToOne(() => Partner, (partner) => partner.blueprints)
-    partner: Partner;
+    @ManyToOne(() => User, (user) => user.blueprints)
+    user: User;
 }
