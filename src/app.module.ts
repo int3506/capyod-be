@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { DatabaseModule } from "./database/database.module";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -7,10 +7,13 @@ import { Product } from "./entities/product.entity";
 import { OrderItem } from "./entities/orderItem.entity";
 import { Order } from "./entities/order.entity";
 import { Shipping } from "./entities/shipping.entity";
-import { UploadModule } from "./modules/upload/upload.module";
 import { AppController } from "./app.controller";
 import { UserModule}  from "./modules/user/user.module";
 import { User } from "./entities/user.entity";
+import { BlueprintModule } from './modules/blueprint/blueprint.module';
+import { AuthenticationMiddleware } from "./shared/middlewares/authentication.middleware";
+import { RequestService } from "./shared/request.service";
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -24,10 +27,16 @@ import { User } from "./entities/user.entity";
       User,
       Shipping,
     ]),
-    UploadModule,
+    
     UserModule,
+    BlueprintModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [RequestService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthenticationMiddleware).forRoutes('*');
+  }
+}

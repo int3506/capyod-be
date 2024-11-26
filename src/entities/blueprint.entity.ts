@@ -5,7 +5,7 @@ import { User } from "./user.entity";
 @Entity()
 export class Blueprint extends AbstractEntity<Blueprint> {
     @Column()
-    name: string
+    name: string;
 
     @Column('text')
     description: string;

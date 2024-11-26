@@ -2,7 +2,6 @@ import { Controller, Post, Body, Get, Patch, Param, ParseIntPipe, Delete } from 
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -44,10 +43,5 @@ export class UserController {
   @Delete(':id')
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     await this.userService.deleteUser(+id);
-  }
-
-  @Post('login')
-  async login(@Body() userData: LoginUserDto) {
-    return await this.userService.validateUser(userData);
   }
 }

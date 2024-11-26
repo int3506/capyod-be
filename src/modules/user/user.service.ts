@@ -1,10 +1,9 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UserService {
@@ -14,7 +13,7 @@ export class UserService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async createUser(userData: CreateUserDto, isPartner: boolean) {
+  async createUser(userData: CreateUserDto, isPartner: boolean): Promise<User> {
     const email = userData.email;
     const user = await this.dataSource
       .getRepository(User)
@@ -32,11 +31,11 @@ export class UserService {
     return await this.userRepository.save(newUser);
   }
 
-  async findUsers() {
+  async findUsers(): Promise<User[]> {
     return await this.userRepository.find();
   }
 
-  async findUserById(id: number) {
+  async findUserById(id: number): Promise<User> {
     // const user = await this.userRepository.findOneBy({ id });
     const user = await this.userRepository.findOne({
       where: { id },
@@ -48,7 +47,7 @@ export class UserService {
     return user;
   }
 
-  async findUserByEmail(email: string) {
+  async findUserByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { email }});
 
     if (!user) 
@@ -56,25 +55,11 @@ export class UserService {
     return user;
   }
 
-  async updateUser(id: number, userData: UpdateUserDto) {
+  async updateUser(id: number, userData: UpdateUserDto): Promise<UpdateResult> {
     return await this.userRepository.update({id}, {...userData});
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: number): Promise<DeleteResult> {
     return await this.userRepository.delete({id});
-  }
-
-  async validateUser(userData: LoginUserDto) {
-    const {email, password} = userData;
-    const user = await this.userRepository.findOne({ where: { email } });
-
-    if (!user) {
-      throw new UnauthorizedException('Email does not exist.');
-    }
-
-    if (user.password != password)
-      throw new UnauthorizedException('Incorrect password.')
-
-    return user;
   }
 }
