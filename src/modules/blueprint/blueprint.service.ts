@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
 import { UpdateBlueprintDto } from './dto/update-blueprint.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Blueprint } from 'src/entities/blueprint.entity';
+import { Blueprint } from 'src/modules/blueprint/entity/blueprint.entity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { UserService } from '../user/user.service';
 
@@ -21,10 +21,6 @@ export class BlueprintService {
   ): Promise<Blueprint> {
     const user = await this.userService.findUserById(userId);
 
-    if (!user.isPartner) {
-      throw new UnauthorizedException('Only partners are allowed to create blueprints.');
-    }
-
     const blueprint = this.blueprintRepository.create({
       ...blueprintData,
       user: user,
@@ -38,7 +34,7 @@ export class BlueprintService {
     return await this.blueprintRepository.find();
   }
 
-  async findBlueprintsByUser(userId: number): Promise<Blueprint[]> {
+  async findBlueprintsByUserId(userId: number): Promise<Blueprint[]> {
     await this.userService.findUserById(userId);
 
     return await this.blueprintRepository.find({
@@ -65,7 +61,7 @@ export class BlueprintService {
     });
     
     if (!blueprint) {
-      throw new NotFoundException('Blueprint does not exist or does not belong to this user');
+      throw new NotFoundException('Blueprint does not exist or does not belong to this user.');
     }
     return await this.blueprintRepository.update(blueprintId, blueprintData);
   }
@@ -76,7 +72,7 @@ export class BlueprintService {
     });
     
     if (!blueprint) {
-      throw new NotFoundException('Blueprint does not exist or does not belong to this user');
+      throw new NotFoundException('Blueprint does not exist or does not belong to this user.');
     }
 
     return await this.blueprintRepository.delete(blueprintId);

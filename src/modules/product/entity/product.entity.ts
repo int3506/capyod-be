@@ -12,11 +12,11 @@ export class Product extends AbstractEntity<Product> {
     @Column('decimal')
     price: number;
 
-    @Column('simple-array')
-    color: string[];
+    @Column('text')
+    color: string;
 
-    @Column('simple-array')
-    size: string[];
+    @Column('text')
+    size: string;
 
     @Column()
     imageUrl: string;

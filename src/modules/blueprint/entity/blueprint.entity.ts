@@ -1,6 +1,6 @@
 import { AbstractEntity } from "src/database/abstract.entity";
+import { User } from "src/modules/user/entity/user.entity";
 import { Column, Entity, ManyToOne } from "typeorm";
-import { User } from "./user.entity";
 
 @Entity()
 export class Blueprint extends AbstractEntity<Blueprint> {
@@ -13,6 +13,6 @@ export class Blueprint extends AbstractEntity<Blueprint> {
     @Column()
     imageUrl: string;
 
-    @ManyToOne(() => User, (user) => user.blueprints)
+    @ManyToOne(() => User, (user) => user.blueprints, { onDelete: 'CASCADE' })
     user: User;
 }

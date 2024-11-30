@@ -1,7 +1,8 @@
 import { AbstractEntity } from "src/database/abstract.entity";
 import { Column, Entity, OneToMany } from "typeorm";
-import { Blueprint } from "./blueprint.entity";
-import { Order } from "./order.entity";
+import { Role } from "src/modules/auth/models/role.enum";
+import { Blueprint } from "src/modules/blueprint/entity/blueprint.entity";
+import { Order } from "src/modules/order/entity/order.entity";
 
 @Entity()
 export class User extends AbstractEntity<User> {
@@ -17,12 +18,13 @@ export class User extends AbstractEntity<User> {
     @Column()
     phoneNumber: string;
 
-    @Column({ default: false })
-    isPartner: boolean;
+    @Column({ type: 'enum', enum: Role, default: Role.USER })
+    role: Role;
 
     @OneToMany(() => Blueprint, (blueprint) => blueprint.user)
     blueprints: Blueprint[];
 
     @OneToMany(() => Order, (order) => order.user)
     orders: Order[];
+
 }
