@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Blueprint } from 'src/modules/blueprint/entity/blueprint.entity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { UserService } from '../user/user.service';
+import * as fs from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class BlueprintService {
@@ -73,6 +75,11 @@ export class BlueprintService {
     
     if (!blueprint) {
       throw new NotFoundException('Blueprint does not exist or does not belong to this user.');
+    }
+
+    const path = join(process.cwd(), blueprint.imageUrl);
+    if (fs.existsSync(path)) {
+      fs.unlinkSync(path);
     }
 
     return await this.blueprintRepository.delete(blueprintId);

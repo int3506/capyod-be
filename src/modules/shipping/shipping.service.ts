@@ -2,8 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Shipping } from 'src/modules/shipping/entity/shipping.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
-import { ShippingStatus } from './models/shipping-status.enum';
-import { Order } from '../order/entity/order.entity';
 import { UpdateShippingDto } from './dto/update-shipping.dto';
 
 @Injectable()

@@ -16,7 +16,7 @@ export class Order extends AbstractEntity<Order> {
     @Column()
     quantity: number;
 
-    @ManyToOne(() => User, (user) => user.orders)
+    @ManyToOne(() => User, (user) => user.orders, { onDelete: 'CASCADE' })
     user: User;
 
     @ManyToOne(() => Product, (product) => product.id)
@@ -25,7 +25,7 @@ export class Order extends AbstractEntity<Order> {
     @ManyToOne(() => Blueprint, (blueprint) => blueprint.id)
     blueprint: Blueprint;
 
-    @OneToOne(() => Shipping, (shipping) => shipping.order, { cascade: true })
+    @OneToOne(() => Shipping, (shipping) => shipping.order, { cascade: true, onDelete: 'CASCADE' })
     @JoinColumn()
     shipping: Shipping;
 }

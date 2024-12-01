@@ -1,6 +1,5 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from 'src/modules/order/entity/order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
@@ -84,15 +83,16 @@ export class OrderService {
     return order;
   }
 
-  async deleteOrder(userId: number, orderId: number): Promise<DeleteResult> {
+  async deleteOrder(userId: number, orderId: number): Promise<any> {
     const order = await this.orderRepository.findOne({
       where: { id: orderId, user: { id: userId } },
+      relations: ['shipping'],
     });
 
     if (!order) {
       throw new NotFoundException('Order does not exist or does not belong to this user.');
     }
 
-    return await this.orderRepository.delete(orderId);
+    return await this.orderRepository.remove(order);
   }
 }

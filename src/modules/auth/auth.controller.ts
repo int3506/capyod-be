@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, HttpCode, HttpStatus, UseGuards, Request }
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from './guards/auth.guard';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 
 @ApiTags('Auth')
@@ -26,6 +26,7 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Get('profile')
   @ApiOperation({ summary: 'Get all properties of token' })
+  @ApiBearerAuth()
   getProfile(@Request() req) {
     return req.user;
   }

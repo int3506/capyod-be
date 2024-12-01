@@ -21,10 +21,9 @@ export class User extends AbstractEntity<User> {
     @Column({ type: 'enum', enum: Role, default: Role.USER })
     role: Role;
 
-    @OneToMany(() => Blueprint, (blueprint) => blueprint.user)
+    @OneToMany(() => Blueprint, (blueprint) => blueprint.user, { cascade: true, onDelete: 'CASCADE' })
     blueprints: Blueprint[];
 
-    @OneToMany(() => Order, (order) => order.user)
+    @OneToMany(() => Order, (order) => order.user, { cascade: true, onDelete: 'CASCADE' })
     orders: Order[];
-
 }
