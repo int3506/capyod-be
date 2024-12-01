@@ -1,10 +1,7 @@
-import { Controller, Body, Get, Patch, Param, ParseIntPipe, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Body, Get, Patch, Param, ParseIntPipe, Delete, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../auth/models/role.enum';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestService } from 'src/shared/request.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
@@ -22,18 +19,23 @@ export class UserController {
     return await this.userService.findUsers();
   }
 
+  @UseGuards(AuthGuard)
+  @Get('me')
+  @ApiOperation({ summary: 'User retrieves their profile' })
+  @ApiBearerAuth()
+  async getUserInfo() {
+    try {
+      const userId = this.requestService.getUserId();
+      return await this.userService.findUserById(userId);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get profile of a specific user' })
   async getUserById(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findUserById(+id);
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('me')
-  @ApiOperation({ summary: 'User retrieves their profile' })
-  async getUserInfo() {
-    const userId = this.requestService.getUserId();
-    return await this.userService.findUserById(userId);
   }
 
   @Get('email/:email')
@@ -42,36 +44,38 @@ export class UserController {
     return await this.userService.findUserByEmail(email);
   }
 
-  @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard)
+  @Patch('me')
+  @ApiBearerAuth()
+  async updateUser(
+    @Body() userData: UpdateUserDto,
+  ) {
+    try {
+      const userId = this.requestService.getUserId();
+      return await this.userService.updateUser(userId, userData);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   @Patch(':id')
   async updateUserForAdmin(
     @Param('id', ParseIntPipe) id: number,
     @Body() userData: UpdateUserDto,
   ) {
-    return await this.userService.updateUser(+id, userData);
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch('me')
-  async updateUser(
-    @Body() userData: UpdateUserDto,
-  ) {
-    const userId = this.requestService.getUserId();
-    return await this.userService.updateUser(userId, userData);
-  }
-
-  @Roles(Role.ADMIN)
-  @UseGuards(RolesGuard)
-  @Delete(':id')
-  async deleteUserForAdmin(@Param('id', ParseIntPipe) id: number) {
-    await this.userService.deleteUser(+id);
+    return await this.userService.updateUser(id, userData);
   }
 
   @UseGuards(AuthGuard)
   @Delete('me')
+  @ApiBearerAuth()
   async deleteUser() {
     const userId = this.requestService.getUserId();
     await this.userService.deleteUser(userId);
+  }
+
+  @Delete(':id')
+  async deleteUserForAdmin(@Param('id', ParseIntPipe) id: number) {
+    await this.userService.deleteUser(id);
   }
 }

@@ -16,6 +16,9 @@ import { ProductModule } from './modules/product/product.module';
 import { OrderModule } from './modules/order/order.module';
 import { ShippingModule } from './modules/shipping/shipping.module';
 import { User } from "./modules/user/entity/user.entity";
+import { APP_FILTER } from "@nestjs/core";
+import { CatchEverythingFilter } from "./shared/filters/catch-everything.filter";
+import { HttpExceptionFilter } from "./shared/filters/http-exception.filter";
 
 @Module({
   imports: [
@@ -28,7 +31,6 @@ import { User } from "./modules/user/entity/user.entity";
       User,
       Shipping,
     ]),
-    
     UserModule,
     BlueprintModule,
     AuthModule,
@@ -37,7 +39,14 @@ import { User } from "./modules/user/entity/user.entity";
     ShippingModule,
   ],
   controllers: [AppController],
-  providers: [RequestService],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: CatchEverythingFilter,
+      // useClass: HttpExceptionFilter,
+    },
+    RequestService
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

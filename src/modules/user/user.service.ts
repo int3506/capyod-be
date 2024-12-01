@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entity/user.entity';
@@ -22,10 +22,14 @@ export class UserService {
   }
 
   async findUserById(id: number): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id });
+    // const user = await this.userRepository.findOneBy({ id });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['blueprints', 'orders'],
+    });
 
     if (!user) 
-      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('User not found.');
     return user;
   }
 
@@ -33,7 +37,7 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { email }});
 
     if (!user) 
-      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('User not found.');
     return user;
   }
 
@@ -47,13 +51,19 @@ export class UserService {
     return await this.userRepository.update(id, {...userData});
   }
 
-  async deleteUser(id: number): Promise<DeleteResult> {
-    const user = await this.userRepository.findOneBy({ id });
-
+  // still bug, on debugging
+  async deleteUser(id: number): Promise<any> {
+    console.log("ahihi");
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['blueprints', 'orders'],
+    });
+    console.log("ahihi");
+    console.log(user);
     if (!user) {
       throw new NotFoundException('User not found.');
     }
 
-    return await this.userRepository.delete(id);
+    return await this.userRepository.remove(user);
   }
 }

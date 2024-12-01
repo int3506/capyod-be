@@ -4,6 +4,8 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'src/modules/product/entity/product.entity';
 import { DeleteResult, Repository } from 'typeorm';
+import * as fs from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class ProductService {
@@ -49,6 +51,11 @@ export class ProductService {
 
     if (!product) {
       throw new NotFoundException('Product not found');
+    }
+
+    const path = join(process.cwd(), product.imageUrl);
+    if (fs.existsSync(path)) {
+      fs.unlinkSync(path);
     }
 
     return await this.productRepository.delete(id);
