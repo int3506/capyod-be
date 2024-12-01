@@ -1,9 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
 
 export class CreateOrderDto {
     @IsNotEmpty()
-    @ApiProperty({ description: 'Order quantity', example: 2 })
+    @ApiProperty({ description: 'Quantity of orderItem', example: 2 })
     quantity: number;
 
     @IsNotEmpty()
@@ -11,10 +11,6 @@ export class CreateOrderDto {
     address: string;
 
     @IsNotEmpty()
-    @ApiProperty({ description: 'productId', example: 1 })
-    productId: number;
-
-    @IsNotEmpty()
-    @ApiProperty({ description: 'blueprintId', example: 1 })
-    blueprintId: number;
+    @ApiProperty({ description: 'orderItemId', example: 1 })
+    orderItemId: number;
 }

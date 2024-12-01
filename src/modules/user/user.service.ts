@@ -25,7 +25,7 @@ export class UserService {
     // const user = await this.userRepository.findOneBy({ id });
     const user = await this.userRepository.findOne({
       where: { id },
-      relations: ['blueprints', 'orders'],
+      relations: ['blueprints', 'orders', 'orderItems'],
     });
 
     if (!user) 
@@ -51,15 +51,9 @@ export class UserService {
     return await this.userRepository.update(id, {...userData});
   }
 
-  // still bug, on debugging
   async deleteUser(id: number): Promise<any> {
-    console.log("ahihi");
-    const user = await this.userRepository.findOne({
-      where: { id },
-      relations: ['blueprints', 'orders'],
-    });
-    console.log("ahihi");
-    console.log(user);
+    const user = await this.userRepository.findOne({ where: { id } });
+
     if (!user) {
       throw new NotFoundException('User not found.');
     }
