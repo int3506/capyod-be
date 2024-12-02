@@ -4,6 +4,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RequestService } from 'src/shared/request.service';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @ApiTags('Order')
 @Controller('orders')
@@ -15,7 +16,7 @@ export class OrderController {
 
   @UseGuards(AuthGuard)
   @Post()
-  @ApiOperation({ summary: 'User creates an order and App automatically creates shipping' })
+  @ApiOperation({ summary: 'User creates an order of an OrderItem' })
   @ApiBearerAuth()
   async createOrder(@Body() orderData: CreateOrderDto) {
     const userId = this.requestService.getUserId();
@@ -47,11 +48,17 @@ export class OrderController {
     return await this.orderService.findOrderById(id);
   }
 
-  @UseGuards(AuthGuard)
+  @Patch(':id')
+  @ApiOperation({ summary: 'Admin updates the new orderStatus' })
+  async updateOrder(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() orderData: UpdateOrderDto,
+  ) {
+    return await this.orderService.updateOrder(id, orderData);
+  }
+
   @Delete(':id')
-  @ApiBearerAuth()
   async removeOrder(@Param('id', ParseIntPipe) id: number) {
-    const userId = this.requestService.getUserId();
-    return await this.orderService.deleteOrder(userId, id);
+    return await this.orderService.deleteOrder(id);
   }
 }

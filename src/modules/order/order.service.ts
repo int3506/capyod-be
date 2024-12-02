@@ -2,60 +2,46 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Order } from 'src/modules/order/entity/order.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { UserService } from '../user/user.service';
-import { ProductService } from '../product/product.service';
-import { BlueprintService } from '../blueprint/blueprint.service';
-import { Shipping } from '../shipping/entity/shipping.entity';
+import { OrderItemService } from '../order-item/order-item.service';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrderService {
   constructor (
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(Shipping)
-    private readonly shippingRepository: Repository<Shipping>,
     private readonly userService: UserService,
-    private readonly productService: ProductService,
-    private readonly blueprintService: BlueprintService,
+    private readonly orderItemService: OrderItemService,
   ) {}
 
   async createOrder(userId: number, orderData: CreateOrderDto): Promise<Order> {
-    const { productId, blueprintId, quantity, address } = orderData;
+    const { orderItemId, quantity, address } = orderData;
 
     const user = await this.userService.findUserById(userId);
     if (!user) {
       throw new NotFoundException('User not found.');
     }
 
-    const product = await this.productService.findProductById(productId);
-    if (!product) {
-      throw new NotFoundException('Product not found.');
+    const orderItem = await this.orderItemService.findOrderItemById(orderItemId);
+    if (!orderItem) {
+      throw new NotFoundException('OrderItem not found.');
     }
 
-    const blueprint = await this.blueprintService.findBlueprintById(blueprintId);
-    if (!blueprint) {
-      throw new NotFoundException('Blueprint not found.');
-    }
-
-    const totalPrice = product.price * quantity;
+    const totalPrice = orderItem.price * quantity;
     const orderDate = new Date();
 
-    const shipping = this.shippingRepository.create({ address });
-    const savedShipping = await this.shippingRepository.save(shipping);
     const order = this.orderRepository.create({
-      user,
-      product,
-      blueprint,
-      shipping: savedShipping,
-      quantity,
       totalPrice,
       orderDate,
+      quantity,
+      address,
+      user,
+      orderItem,
     })
-    const savedOrder = await this.orderRepository.save(order);
-    await this.shippingRepository.update(savedShipping.id, { order: savedOrder });
 
-    return savedOrder;
+    return await this.orderRepository.save(order);
   }
 
   async findOrders(): Promise<Order[]> {
@@ -66,14 +52,14 @@ export class OrderService {
     const user = await this.userService.findUserById(userId);
     return await this.orderRepository.find({
       where: { user },
-      relations: ['product', 'blueprint', 'shipping'],
+      relations: ['user', 'orderItem'],
     });
   }
 
-  async findOrderById(orderId: number): Promise<Order> {
+  async findOrderById(id: number): Promise<Order> {
     const order = await this.orderRepository.findOne({
-      where: { id: orderId },
-      relations: ['user', 'product', 'blueprint', 'shipping'],
+      where: { id },
+      relations: ['user', 'orderItem'],
     });
 
     if (!order) {
@@ -83,14 +69,23 @@ export class OrderService {
     return order;
   }
 
-  async deleteOrder(userId: number, orderId: number): Promise<any> {
+  async updateOrder(id: number, orderData: UpdateOrderDto): Promise<UpdateResult> {
+    const order = await this.orderRepository.findOneBy({ id });
+    
+    if (!order) {
+      throw new NotFoundException('Order not found.');
+    }
+
+    return await this.orderRepository.update(id, { status: orderData.status });
+  }
+
+  async deleteOrder(id: number): Promise<any> {
     const order = await this.orderRepository.findOne({
-      where: { id: orderId, user: { id: userId } },
-      relations: ['shipping'],
-    });
+      where: { id },
+    })
 
     if (!order) {
-      throw new NotFoundException('Order does not exist or does not belong to this user.');
+      throw new NotFoundException('Order not found.');
     }
 
     return await this.orderRepository.remove(order);

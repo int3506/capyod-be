@@ -3,6 +3,7 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { Role } from "src/modules/auth/models/role.enum";
 import { Blueprint } from "src/modules/blueprint/entity/blueprint.entity";
 import { Order } from "src/modules/order/entity/order.entity";
+import { OrderItem } from "src/modules/order-item/entity/order-item.entity";
 
 @Entity()
 export class User extends AbstractEntity<User> {
@@ -26,4 +27,7 @@ export class User extends AbstractEntity<User> {
 
     @OneToMany(() => Order, (order) => order.user, { cascade: true, onDelete: 'CASCADE' })
     orders: Order[];
+
+    @OneToMany(() => OrderItem, (orderItem) => orderItem.user, { cascade: true, onDelete: 'CASCADE' })
+    orderItems: OrderItem[];
 }

@@ -1,9 +1,8 @@
 import { AbstractEntity } from "src/database/abstract.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
-import { Shipping } from "../../shipping/entity/shipping.entity";
-import { Blueprint } from "../../blueprint/entity/blueprint.entity";
-import { Product } from "../../product/entity/product.entity";
 import { User } from "src/modules/user/entity/user.entity";
+import { OrderStatus } from "src/modules/order/models/order-status.enum";
+import { OrderItem } from "src/modules/order-item/entity/order-item.entity";
 
 @Entity()
 export class Order extends AbstractEntity<Order> {
@@ -16,16 +15,15 @@ export class Order extends AbstractEntity<Order> {
     @Column()
     quantity: number;
 
+    @Column('text')
+    address: string;
+
+    @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PROCESSING })
+    status: OrderStatus;
+
     @ManyToOne(() => User, (user) => user.orders, { onDelete: 'CASCADE' })
     user: User;
 
-    @ManyToOne(() => Product, (product) => product.id)
-    product: Product;
-
-    @ManyToOne(() => Blueprint, (blueprint) => blueprint.id)
-    blueprint: Blueprint;
-
-    @OneToOne(() => Shipping, (shipping) => shipping.order, { cascade: true, onDelete: 'CASCADE' })
-    @JoinColumn()
-    shipping: Shipping;
+    @ManyToOne(() => OrderItem, (orderItem) => orderItem.orders, { onDelete: 'CASCADE' })
+    orderItem: OrderItem;
 }

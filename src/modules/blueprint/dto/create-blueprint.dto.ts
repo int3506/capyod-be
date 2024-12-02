@@ -10,18 +10,11 @@ export class CreateBlueprintDto {
     description: string;
 }
 
-export class CreateBlueprintDtoWithFile {
+export class CreateBlueprintDtoWithFile extends CreateBlueprintDto {
     @ApiProperty({
         description: 'Image file for the blueprint',
         type: 'string',
         format: 'binary',
       })
     file: any;
-
-    @IsNotEmpty()
-    @ApiProperty({ description: 'Name of blueprint', example: 'Chill Guy' })
-    name: string;
-
-    @ApiPropertyOptional({ description: 'description of blueprint', example: 'My life is tough, but I\'m just a chill guy' })
-    description: string;
 }
