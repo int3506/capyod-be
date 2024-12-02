@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, HttpException, HttpStatus, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, HttpException, HttpStatus, ParseIntPipe, UseGuards, BadRequestException, UploadedFiles } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDto, CreateProductDtoWithFile } from './dto/create-product.dto';
+import { CreateProductDto, CreateProductDtoWithFiles } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig, multerOptions } from 'src/shared/helpers/multer.config';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -12,19 +12,25 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('file', { ...multerConfig, ...multerOptions }))
-  @ApiOperation({ summary: 'Admin uploads a new shirt type' })
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: 'frontsideImage', maxCount: 1 },
+    { name: 'backsideImage', maxCount: 1},
+  ], { ...multerConfig, ...multerOptions }))
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: CreateProductDtoWithFile })
+  @ApiBody({ type: CreateProductDtoWithFiles })
   async createProduct(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Record<string, Express.Multer.File[]>,
     @Body() productData: CreateProductDto,
   ) {
-    if (!file) {
-      throw new HttpException('File is invalid or not sent.', HttpStatus.BAD_REQUEST);
-    }
-    const imageUrl = `/uploads/images/${file.filename}`;
-    return await this.productService.createProduct(productData, imageUrl);
+    if (!files.frontsideImage || files.frontsideImage.length === 0) 
+      throw new BadRequestException('Frontside of the shirt can not be emmty');
+    if (!files.backsideImage || files.backsideImage.length === 0)
+      throw new BadRequestException('Backside of the shirt can not be emmty');
+
+    const frontsideImageUrl = `/uploads/images/${files.frontsideImage[0].filename}`;
+    const backsideImageUrl = `/uploads/images/${files.backsideImage[0].filename}`;
+
+    return await this.productService.createProduct(productData, frontsideImageUrl, backsideImageUrl);
   }
 
   @Get()

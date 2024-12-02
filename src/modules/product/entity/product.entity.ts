@@ -19,5 +19,8 @@ export class Product extends AbstractEntity<Product> {
     size: string;
 
     @Column()
-    imageUrl: string;
+    frontsideImageUrl: string;
+
+    @Column()
+    backsideImageUrl: string;
 }
