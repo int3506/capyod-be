@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { DatabaseModule } from "./database/database.module";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { ServeStaticModule } from "@nestjs/serve-static";
 import { Blueprint } from "./modules/blueprint/entity/blueprint.entity";
 import { Product } from "./modules/product/entity/product.entity";
 import { Order } from "./modules/order/entity/order.entity";
@@ -19,9 +20,14 @@ import { CatchEverythingFilter } from "./shared/filters/catch-everything.filter"
 import { HttpExceptionFilter } from "./shared/filters/http-exception.filter";
 import { OrderItemModule } from './modules/order-item/order-item.module';
 import { OrderItem } from "./modules/order-item/entity/order-item.entity";
+import { join } from "path";
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     TypeOrmModule.forFeature([
