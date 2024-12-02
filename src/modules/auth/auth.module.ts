@@ -12,7 +12,7 @@ import { RequestService } from 'src/shared/request.service';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '8h' },
     }),
   ],
   controllers: [AuthController],
