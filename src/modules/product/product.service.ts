@@ -14,10 +14,15 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async createProduct(productData: CreateProductDto, imageUrl: string): Promise<Product> {
+  async createProduct(
+    productData: CreateProductDto,
+    frontsideImageUrl: string,
+    backsideImageUrl: string,
+  ): Promise<Product> {
     const product = this.productRepository.create({
       ...productData,
-      imageUrl: imageUrl,
+      frontsideImageUrl,
+      backsideImageUrl,
     })
     return await this.productRepository.save(product);
   }
@@ -46,18 +51,22 @@ export class ProductService {
     return await this.productRepository.update(id, productData);
   }
 
-  async deleteProduct(id: number): Promise<DeleteResult> {
+  async deleteProduct(id: number): Promise<any> {
     const product = await this.productRepository.findOneBy({ id });
 
     if (!product) {
       throw new NotFoundException('Product not found');
     }
 
-    const path = join(process.cwd(), product.imageUrl);
-    if (fs.existsSync(path)) {
-      fs.unlinkSync(path);
-    }
+    await this.productRepository.remove(product);
 
-    return await this.productRepository.delete(id);
+    const frontsidePath = join(process.cwd(), product.frontsideImageUrl);
+    if (fs.existsSync(frontsidePath)) fs.unlinkSync(frontsidePath);
+    const backsidePath = join(process.cwd(), product.backsideImageUrl);
+    if (fs.existsSync(backsidePath)) fs.unlinkSync(backsidePath);
+
+    return {
+      message: 'Delete product successfully',
+    };
   }
 }
