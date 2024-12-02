@@ -88,6 +88,10 @@ export class OrderService {
       throw new NotFoundException('Order not found.');
     }
 
-    return await this.orderRepository.remove(order);
+    await this.orderRepository.remove(order);
+
+    return {
+      message: 'Delete order successfully'
+    };
   }
 }

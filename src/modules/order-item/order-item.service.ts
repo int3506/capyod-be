@@ -85,6 +85,8 @@ export class OrderItemService {
       throw new NotFoundException('OrderItem does not exist or does not belong to this user.');
     }
 
+    await this.orderItemRepository.remove(orderItem);
+
     if (orderItem.frontsideImageUrl) {
       const frontsidePath = join(process.cwd(), orderItem.frontsideImageUrl);
       if (fs.existsSync(frontsidePath)) fs.unlinkSync(frontsidePath);
@@ -94,6 +96,8 @@ export class OrderItemService {
       if (fs.existsSync(backsidePath)) fs.unlinkSync(backsidePath);
     }
 
-    return await this.orderItemRepository.remove(orderItem);
+    return {
+      message: 'Delete orderItem successfully'
+    };
   }
 }

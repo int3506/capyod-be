@@ -68,7 +68,7 @@ export class BlueprintService {
     return await this.blueprintRepository.update(blueprintId, blueprintData);
   }
 
-  async deleteBlueprint(userId: number, blueprintId: number): Promise<DeleteResult> {
+  async deleteBlueprint(userId: number, blueprintId: number): Promise<any> {
     const blueprint = await this.blueprintRepository.findOne({
       where: { id: blueprintId, user: { id: userId } },
     });
@@ -76,12 +76,16 @@ export class BlueprintService {
     if (!blueprint) {
       throw new NotFoundException('Blueprint does not exist or does not belong to this user.');
     }
+    
+    await this.blueprintRepository.remove(blueprint);
 
     const path = join(process.cwd(), blueprint.imageUrl);
     if (fs.existsSync(path)) {
       fs.unlinkSync(path);
     }
 
-    return await this.blueprintRepository.delete(blueprintId);
+    return {
+      message: 'Delete blueprint successfully'
+    };
   }
 }
